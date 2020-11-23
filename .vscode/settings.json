@@ -3,5 +3,8 @@
     "deno.unstable": true,
     "[typescript]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "deno.import_intellisense_origins": {
+        "https://deno.land": true
     }
 }
