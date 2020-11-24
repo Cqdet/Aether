@@ -7,7 +7,7 @@ export default class Emoji {
 	public available: boolean;
 	public animated: boolean;
 
-	constructor(data: any) {
+	public constructor(data: any) {
 		this.id = data.id;
 		this.roles = data.roles;
 		this.requireColons = data.require_colons;

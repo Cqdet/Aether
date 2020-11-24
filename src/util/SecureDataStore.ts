@@ -4,13 +4,9 @@
 export default class SecureDataStore extends Map {
 	private salt: number;
 
-	private salt2: number;
-
 	public constructor() {
 		super();
 		this.salt = Math.random() * 1000000000;
-		this.salt2 =
-			Math.floor((Math.random() * 1000000) / Math.random()) * 1048039;
 	}
 
 	public set(key: string, value: any) {
@@ -18,7 +14,7 @@ export default class SecureDataStore extends Map {
 		let buffer = new Uint8Array(value.length);
 
 		for (let i = 0; i < buffer.length; i++) {
-			buffer[i] = strBuffer[i] + this.salt + (this.salt2 || 0);
+			buffer[i] = strBuffer[i] + this.salt;
 		}
 
 		return super.set(key, buffer);
@@ -30,16 +26,9 @@ export default class SecureDataStore extends Map {
 		let val = new Uint8Array(valBuffer.length);
 
 		for (let i = 0; i < valBuffer.length; i++) {
-			val[i] = valBuffer[i] - this.salt - (this.salt2 || 0);
+			val[i] = valBuffer[i] - this.salt;
 		}
 
-		this.resetSalt();
 		return new TextDecoder().decode(val);
-	}
-
-	private resetSalt() {
-		this.salt = Math.random() * 1000000000;
-		this.salt2 =
-			Math.floor((Math.random() * 1000000) / Math.random()) * 1048039;
 	}
 }

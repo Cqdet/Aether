@@ -6,6 +6,7 @@ import Channel from './structures/channels/Channel.ts';
 import Guild from './structures/guild/Guild.ts';
 import User from './structures/User.ts';
 import Collection from './util/Collection.ts';
+import Logger from './util/Logger.ts';
 import SecureDataStore from './util/SecureDataStore.ts';
 
 export interface ClientOptions {
@@ -17,6 +18,7 @@ export interface ClientOptions {
 		users?: CacheOptions;
 		messages?: CacheOptions;
 	};
+	debug?: boolean;
 }
 
 export interface CacheOptions {
@@ -87,10 +89,14 @@ export default class Client extends EventEmitter {
 	public users: Collection<User>;
 
 	private options: ClientOptions;
+	private logger: Logger;
 
 	public constructor(token: string, options: ClientOptions) {
 		super();
 		this.options = options;
+		if (this.options.debug) Logger.DEBUG = true;
+		this.logger = new Logger('CLIENT');
+		this.logger.debug('Intializing client');
 
 		this.secureDataStore = new SecureDataStore();
 		this.shard = new Shard(this);
@@ -100,14 +106,18 @@ export default class Client extends EventEmitter {
 		this.channels = new Collection(Channel);
 		this.users = new Collection(User);
 
+		this.logger.debug('Secured token in data store');
 		this.secureDataStore.set('TOKEN', token);
 	}
 
 	public connect() {
+		this.logger.debug('Authenticating to the gateway...');
 		this.shard.connect(this.secureDataStore.get('TOKEN') || '');
+		this.logger.success('Successfully authenticated to the gateway');
 	}
 
 	public on(ev: ClientEvents, fn: GenericFunction | WrappedFunction) {
+		this.logger.debug(`Found Event: ${ev}`);
 		return super.on(ev, fn);
 	}
 }

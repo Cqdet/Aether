@@ -10,9 +10,15 @@ import VoiceChannel from '../../structures/channels/VoiceChannel.ts';
 import Guild from '../../structures/guild/Guild.ts';
 import User from '../../structures/User.ts';
 import Message from '../../structures/Message.ts';
+import Logger from '../../util/Logger.ts';
+
+interface DiscordError {
+	code: number;
+	reason: string;
+}
 
 export default class Shard extends EventEmitter {
-	public ws!: WebSocket;
+	public ws: WebSocket;
 	public state: 'OPEN' | 'CONNECTED' | 'CLOSING' | 'CLOSED' = 'CLOSED';
 	public sessionID: string;
 
@@ -21,24 +27,52 @@ export default class Shard extends EventEmitter {
 	private lastHeartbeatSent!: number;
 	private lastHeartbeatAck!: number;
 
+	private seqID?: number;
+
 	private client: Client;
+
+	private logger: Logger;
 
 	public constructor(client: Client) {
 		super();
 		this.client = client;
 		this.sessionID = '';
+
+		this.logger = new Logger('SHARD');
+		this.ws = new WebSocket('wss://gateway.discord.gg/?v=8&encoding=json');
+
+		this.ws.onopen = () => {
+			this.state = 'OPEN';
+		};
+
+		this.ws.onclose = (ev: Event) => {
+			const err: DiscordError = <any>ev;
+			this.logger.warning(
+				`Closing WebSocket: ${err.reason} [${err.code}]`
+			);
+			this.state = 'CLOSED';
+		};
+
+		this.ws.onerror = (ev: Event | ErrorEvent) => {
+			this.state = 'CLOSED';
+			this.logger.error(JSON.stringify(ev, null, 4));
+			throw ev;
+		};
 	}
 
 	public connect(token: string, intents: number = 513) {
-		this.ws = new WebSocket('wss://gateway.discord.gg/?v=8&encoding=json');
-
 		this.ws.onmessage = (ev: MessageEvent) => {
 			const payload: Payload = JSON.parse(ev.data);
+			this.seqID = payload.s;
+			this.logger.debug(`Received OP: ${payload.op}`);
+			this.logger.debug(`Sequence ID: ${this.seqID || 'N/A'}`);
 
 			switch (payload.op) {
 				case OPCodes.HELLO: {
 					this.heartbeat(payload.d.heartbeat_interval || 45000);
+					this.logger.debug('Identifying to gateway...');
 					this.identify(token, intents);
+					this.logger.success('Successfully identified to gateway');
 					break;
 				}
 
@@ -52,10 +86,19 @@ export default class Shard extends EventEmitter {
 							.join('');
 
 					if ((this as any)[ev] !== undefined) {
+						this.logger.debug(
+							`Handing Event: ${
+								ev.charAt(2).toLowerCase() + ev.substring(3)
+							}`
+						);
 						(this as any)[ev](payload.d);
 						return;
 					} else {
-						console.log(ev);
+						this.logger.debug(
+							`Unknown Event: ${
+								ev.charAt(2).toLowerCase() + ev.substring(3)
+							}`
+						);
 						this.client.emit('unknown', payload.d);
 					}
 				}
@@ -63,7 +106,7 @@ export default class Shard extends EventEmitter {
 				case OPCodes.HEARTBEAT_ACK: {
 					this.lastHeartbeatAck = Date.now();
 					this.ping = this.lastHeartbeatAck - this.lastHeartbeatSent;
-					this.client.emit('debug', 'Ping: ' + this.ping);
+					this.logger.debug(`Current Ping: ${this.ping}ms`);
 				}
 			}
 		};
@@ -94,7 +137,8 @@ export default class Shard extends EventEmitter {
 		}
 		this.heartbeatInterval = setInterval(() => {
 			this.lastHeartbeatSent = Date.now();
-			this.send({ op: OPCodes.HEARTBEAT, d: null });
+			this.send({ op: OPCodes.HEARTBEAT, d: this.seqID });
+			this.logger.debug('Sending client heartbeat...');
 		}, ms);
 	}
 
@@ -152,7 +196,7 @@ export default class Shard extends EventEmitter {
 		this.client.emit('messageCreate', msg);
 	}
 
-	private get emptyGuild() {
+	public get emptyGuild() {
 		return new Guild(
 			{
 				id: '0',
@@ -169,7 +213,7 @@ export default class Shard extends EventEmitter {
 		);
 	}
 
-	private get emptyTextChannel() {
+	public get emptyTextChannel() {
 		return new TextChannel(
 			{
 				id: '0',
@@ -183,20 +227,23 @@ export default class Shard extends EventEmitter {
 				lastMessageId: '0',
 				parentID: '0',
 			},
-			new Guild(
-				{
+			this.emptyGuild,
+			this.client
+		);
+	}
+
+	public get emptyMessage(): Message {
+		return new Message(
+			{
+				id: '0',
+				content: '0',
+				author: {
 					id: '0',
-					name: '0',
-					description: '0',
-					splash: '0',
-					owner: null,
-					permissions: null,
-					region: '0',
-					afkChannel: null,
-					afkTimeout: null,
+					username: 'Unknown',
+					discriminator: '9999',
 				},
-				this.client
-			),
+			},
+			this.emptyTextChannel,
 			this.client
 		);
 	}

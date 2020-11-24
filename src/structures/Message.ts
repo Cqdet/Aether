@@ -1,37 +1,15 @@
+import {
+	MessageEmbed,
+	MessageAttachment,
+	MessageContent,
+} from '../constants/Constants.ts';
 import Client from '../Client.ts';
 import Base from './Base.ts';
 import TextChannel from './channels/TextChannel.ts';
 import Guild from './guild/Guild.ts';
 import Member from './guild/Member.ts';
 import User from './User.ts';
-
-export interface MessageAttachment {
-	id: string;
-	height: number;
-	width: number;
-	size: number;
-	url: string;
-	fileName: string;
-}
-
-export interface MessageEmbed {
-	title?: string;
-	type?: 'rich' | 'image' | 'video' | 'gifv' | 'article' | 'link';
-	description?: string;
-	url?: string;
-	timestamp?: number;
-	color?: number;
-	footer?: {
-		text: string;
-		icon_url: string;
-	};
-	image?: { url?: string; height: number; width: number };
-	thumbnail?: { url?: string; height: number; width: number };
-	video?: { url?: string; height?: number; width?: number };
-	provider?: { name?: string; url?: string };
-	author?: { name?: string; url?: string };
-	fields?: { name: string; value: string; inline: boolean }[];
-}
+import { Endpoints } from '../network/Endpoints.ts';
 
 export default class Message extends Base {
 	public type: number;
@@ -68,5 +46,47 @@ export default class Message extends Base {
 		this.member = this.channel.guild.members.get(this.author.id);
 		this.attachments = data.attachments;
 		this.args = [];
+	}
+
+	public async edit(
+		content: MessageContent | string | MessageEmbed
+	): Promise<Message> {
+		if (typeof content === 'string') {
+			content = { content: content };
+		}
+
+		const res = await this.client.rest.request(
+			'PATCH',
+			Endpoints.CHANNEL_MESSAGE(this.channel.id, this.id),
+			content
+		);
+
+		return new Message(res || { id: this.id }, this.channel, this.client);
+	}
+
+	public async reply(
+		content: MessageContent | string,
+		id: string = this.id
+	): Promise<Message> {
+		if (typeof content === 'string') {
+			content = {
+				content: content,
+				message_reference: {
+					guild_id:
+						this.guildID || this.guild.id || this.channel.guild.id,
+					channel_id: this.channel.id,
+					message_id: id,
+				},
+			};
+		} else {
+			content.message_reference = {
+				guild_id:
+					this.guildID || this.guild.id || this.channel.guild.id,
+				channel_id: this.channel.id,
+				message_id: id,
+			};
+		}
+
+		return await this.channel.send(content);
 	}
 }

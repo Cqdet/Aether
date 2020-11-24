@@ -12,7 +12,7 @@ export default class Role extends Base {
 	public hoist: boolean;
 	public mentionable: boolean;
 
-	constructor(data: any, guild: Guild, client: Client) {
+	public constructor(data: any, guild: Guild, client: Client) {
 		super(data.id, client);
 		this.guild = guild;
 		this.name = data.name;

@@ -1,6 +1,6 @@
-import * as Aether from 'https://deno.land/x/aether/mod.ts';
+import * as Aether from '../mod.ts';
 
-const client = new Aether.Client('MY_TOKEN', {
+const client = new Aether.Client('', {
 	intents: Aether.DefaultIntents,
 	allowedEvents: ['messageCreate', 'ready'],
 	cache: {
@@ -17,15 +17,14 @@ const client = new Aether.Client('MY_TOKEN', {
 			$max: Infinity,
 		},
 	},
+	debug: true,
 });
 
 client.connect();
 
 client.on('ready', (id: string) => {
-	console.log(`Bot is ready on ${client.user.tag}`);
-	console.log(`SessionID: ${id}`);
+	// console.log(`Bot is ready on ${client.user.tag}`);
+	// console.log(`SessionID: ${id}`);
 });
 
-client.on('messageCreate', (msg: Aether.Message) => {
-	console.log(msg.guild);
-});
+client.on('messageCreate', (msg: Aether.Message) => {});

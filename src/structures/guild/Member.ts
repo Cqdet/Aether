@@ -18,7 +18,7 @@ export default class Member extends Base {
 	public hoistedRole: any;
 	public deaf: boolean;
 
-	constructor(data: any, guild: Guild, client: Client) {
+	public constructor(data: any, guild: Guild, client: Client) {
 		super(data.user.id, client);
 		this.guild = guild;
 		this.user = data.user;

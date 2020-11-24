@@ -10,7 +10,7 @@ export default class Invite extends Base {
 	public channel: GuildChannel;
 	public inviter: User;
 
-	constructor(data: any, client: Client) {
+	public constructor(data: any, client: Client) {
 		super(data.code, client);
 		this.code = data.code;
 		this.guild = new Guild(data.guild, client);
