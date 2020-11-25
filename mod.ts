@@ -25,3 +25,5 @@ export { default as CategoryChannel } from './src/structures/channels/CategoryCh
 export { default as Permission } from './src/structures/permissions/Permission.ts';
 export { default as Permissions } from './src/structures/permissions/Permissions.ts';
 export { default as PermissionOverwite } from './src/structures/permissions/PermissionOverwrite.ts';
+
+export { default as Collection } from './src/util/Collection.ts';
