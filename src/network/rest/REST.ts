@@ -6,7 +6,7 @@ export default class REST {
 	private client: Client;
 	private logger: Logger;
 
-	constructor(client: Client) {
+	public constructor(client: Client) {
 		this.client = client;
 		this.logger = new Logger('REST');
 	}

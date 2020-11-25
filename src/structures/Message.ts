@@ -89,4 +89,11 @@ export default class Message extends Base {
 
 		return await this.channel.send(content);
 	}
+
+	public async pin(): Promise<void> {
+		return await this.client.rest.request(
+			'PUT',
+			Endpoints.CHANNEL_PIN(this.channel.id, this.id)
+		);
+	}
 }

@@ -19,33 +19,39 @@ export default class Logger {
 	}
 
 	public success(...msgs: any[]) {
-		console.log(
-			color.green(`[${this.time}] [${this.name.toUpperCase()}\\SUCCESS]`),
-			...msgs
-		);
+		if (Logger.DEBUG)
+			console.log(
+				color.green(
+					`[${this.time}] [${this.name.toUpperCase()}\\SUCCESS]`
+				),
+				...msgs
+			);
 	}
 
 	public warning(...msgs: any[]) {
-		console.log(
-			color.yellow(
-				`[${this.time}] [${this.name.toUpperCase()}\\WARNING]`
-			),
-			...msgs
-		);
+		if (Logger.DEBUG)
+			console.log(
+				color.yellow(
+					`[${this.time}] [${this.name.toUpperCase()}\\WARNING]`
+				),
+				...msgs
+			);
 	}
 
 	public error(...msgs: any[]) {
-		console.log(
-			color.red(`[${this.time}] [${this.name.toUpperCase()}\\ERROR]`),
-			...msgs
-		);
+		if (Logger.DEBUG)
+			console.log(
+				color.red(`[${this.time}] [${this.name.toUpperCase()}\\ERROR]`),
+				...msgs
+			);
 	}
 
 	public fatal(...msgs: any[]) {
-		console.log(
-			color.red(`[${this.time}] [${this.name.toUpperCase()}\\FATAL]`),
-			...msgs
-		);
+		if (Logger.DEBUG)
+			console.log(
+				color.red(`[${this.time}] [${this.name.toUpperCase()}\\FATAL]`),
+				...msgs
+			);
 	}
 
 	public get time() {

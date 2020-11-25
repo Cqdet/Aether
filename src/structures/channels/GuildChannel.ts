@@ -8,7 +8,7 @@ export default class GuildChannel extends Channel {
 	public name: string;
 	public type: number;
 	public nsfw: boolean;
-	public position: string;
+	public position: number;
 	public parentID: string;
 	public permissionOverwrites: PermissionOverwite[];
 

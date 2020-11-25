@@ -8,7 +8,7 @@ export default class Role extends Base {
 	public name: string;
 	public permissions: Permission;
 	public position: number;
-	public color: string;
+	public color: number;
 	public hoist: boolean;
 	public mentionable: boolean;
 

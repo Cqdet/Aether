@@ -17,7 +17,7 @@ const client = new Aether.Client('', {
 			$max: Infinity,
 		},
 	},
-	debug: true,
+	debug: false,
 });
 
 client.connect();

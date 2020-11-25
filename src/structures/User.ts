@@ -1,6 +1,8 @@
 import Client from '../Client.ts';
-import { CDN_URL, Endpoints } from '../network/Endpoints.ts';
+import { MessageContent, MessageEmbed } from '../constants/Constants.ts';
+import { CDN_URL, Endpoints, REST_URL } from '../network/Endpoints.ts';
 import Base from './Base.ts';
+import TextChannel from './channels/TextChannel.ts';
 
 export default class User extends Base {
 	public username: string;
@@ -34,5 +36,16 @@ export default class User extends Base {
 			'?size=' +
 			512
 		);
+	}
+
+	public async send(content: MessageContent | string | MessageEmbed) {
+		const ch: TextChannel = new TextChannel( // I will make a PrivateChannel later
+			await this.client.rest.request('POST', '/users/@me/channels', {
+				recipient_id: this.id,
+			}),
+			this.client.shard.emptyGuild,
+			this.client
+		);
+		return await ch.send(content);
 	}
 }

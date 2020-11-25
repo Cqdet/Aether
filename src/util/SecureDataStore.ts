@@ -31,4 +31,8 @@ export default class SecureDataStore extends Map {
 
 		return new TextDecoder().decode(val);
 	}
+
+	public getRaw(key: string) {
+		return super.get(key);
+	}
 }
