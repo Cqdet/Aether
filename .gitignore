@@ -1,1 +1,3 @@
 tests/private
+src/voice/target/
+src/voice/Cargo.lock
