@@ -3,7 +3,6 @@
 use deno_core::plugin_api::Interface;
 use deno_core::plugin_api::Op;
 use deno_core::plugin_api::ZeroCopyBuf;
-use futures::future::FutureExt;
 
 #[no_mangle]
 pub fn deno_plugin_init(interface: &mut dyn Interface) {
