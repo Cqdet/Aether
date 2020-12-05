@@ -27,3 +27,7 @@ export { default as Permissions } from './src/structures/permissions/Permissions
 export { default as PermissionOverwite } from './src/structures/permissions/PermissionOverwrite.ts';
 
 export { default as Collection } from './src/util/Collection.ts';
+
+export type { default as ChannelOptions } from './src/structures/options/ChannelOptions.ts';
+export type { default as MemberOptions } from './src/structures/options/MemberOptions.ts';
+export type { default as RoleOptions } from './src/structures/options/RoleOptions.ts';
