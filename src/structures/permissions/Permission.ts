@@ -16,11 +16,13 @@ export default class Permission {
 		let obj: any = {};
 		for (const perm of Object.keys(Permissions)) {
 			if (!perm.startsWith('all')) {
-				// @ts-ignore
-				if (this.allow & Permissions[perm]) {
+				if (
+					this.allow & Permissions[perm as keyof typeof Permissions]
+				) {
 					obj[perm] = true;
-					// @ts-ignore
-				} else if (this.deny & Permissions[perm]) {
+				} else if (
+					this.deny & Permissions[perm as keyof typeof Permissions]
+				) {
 					obj[perm] = false;
 				}
 			}

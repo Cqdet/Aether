@@ -36,4 +36,31 @@ export default class TextChannel extends GuildChannel {
 
 		return new Message(res || { id: this.id }, this, this.client);
 	}
+
+	public async getMessage(id: string): Promise<Message> {
+		return new Message(
+			await this.client.rest.request(
+				'GET',
+				Endpoints.CHANNEL_MESSAGE(this.id, id)
+			),
+			this,
+			this.client
+		);
+	}
+
+	public async deleteMessage(id: string): Promise<void> {
+		return await this.client.rest.request(
+			'DELETE',
+			Endpoints.CHANNEL_MESSAGE(this.id, id)
+		);
+	}
+
+	public async deleteMessages(messages: string[]): Promise<void> {
+		throw 'Not implemented';
+		// return await this.client.rest.request(
+		// 	'DELETE',
+		// 	Endpoints.CHANNEL_BULK_DELETE(this.id),
+		// 	{ messages }
+		// );
+	}
 }

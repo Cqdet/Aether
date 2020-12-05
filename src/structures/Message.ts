@@ -64,6 +64,13 @@ export default class Message extends Base {
 		return new Message(res || { id: this.id }, this.channel, this.client);
 	}
 
+	public async delete(): Promise<boolean> {
+		return await this.client.rest.request(
+			'DELETE',
+			Endpoints.CHANNEL_MESSAGE(this.channel.id, this.id)
+		);
+	}
+
 	public async reply(
 		content: MessageContent | string,
 		id: string = this.id

@@ -17,14 +17,18 @@ const client = new Aether.Client('', {
 			$max: Infinity,
 		},
 	},
-	debug: false,
+	debug: true,
 });
 
 client.connect();
 
 client.on('ready', (id: string) => {
-	// console.log(`Bot is ready on ${client.user.tag}`);
-	// console.log(`SessionID: ${id}`);
+	console.log(`Bot is ready on ${client.user.tag}`);
+	console.log(`Session ID ${id}`);
 });
 
-client.on('messageCreate', (msg: Aether.Message) => {});
+client.on('messageCreate', async (msg: Aether.Message) => {
+	if (msg.guildID === '723356120047157249') {
+		console.log(msg.member?.permissions.json);
+	}
+});

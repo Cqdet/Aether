@@ -1,5 +1,5 @@
 import { EventEmitter, GenericFunction, WrappedFunction } from '../deps.ts';
-import { Intents } from './constants/Intents.ts';
+import { DefaultIntents, Intents } from './constants/Intents.ts';
 import Shard from './network/gateway/Shard.ts';
 import REST from './network/rest/REST.ts';
 import Channel from './structures/channels/Channel.ts';
@@ -74,6 +74,7 @@ export type ClientEvents =
 	| 'webhookUpdate'
 	| 'error'
 	| 'warn'
+	| 'unknown'
 	| 'debug'
 	| 'invalidated'
 	| 'raw';
@@ -96,7 +97,7 @@ export default class Client extends EventEmitter {
 		this.options = options;
 		if (this.options.debug) Logger.DEBUG = true;
 		this.logger = new Logger('CLIENT');
-		this.logger.debug('Intializing client');
+		this.logger.debug('Intializing client...');
 
 		this.secureDataStore = new SecureDataStore();
 		this.shard = new Shard(this);
@@ -112,12 +113,36 @@ export default class Client extends EventEmitter {
 
 	public connect() {
 		this.logger.debug('Authenticating to the gateway...');
-		this.shard.connect(this.secureDataStore.get('TOKEN') || '');
+		this.shard.connect(
+			this.secureDataStore.get('TOKEN') || '',
+			this.parseIntents(this.options.intents || DefaultIntents)
+		);
 		this.logger.success('Successfully authenticated to the gateway');
 	}
 
 	public on(ev: ClientEvents, fn: GenericFunction | WrappedFunction) {
-		this.logger.debug(`Found Event: ${ev}`);
+		this.logger.debug(`Listened Event: ${ev}`);
 		return super.on(ev, fn);
+	}
+
+	public emit(ev: ClientEvents, ...args: any[]): boolean {
+		// this.logger.debug(`Emitted Event: [${ev.toUpperCase()}]`);
+		if (!this.options.allowedEvents?.includes(ev)) return false;
+		return super.emit(ev, ...args);
+	}
+
+	private parseIntents(intents: (keyof typeof Intents)[] | number): number {
+		// FROM ERIS: https://github.com/abalabahaha/eris/blob/72859c9aaf8e7349e06879f2266c8b6885de4720/lib/Client.js#L164-L180
+		if (Array.isArray(this.options.intents)) {
+			let bitmask = 0;
+			for (const intent of this.options.intents) {
+				if (Intents[intent]) {
+					bitmask |= Intents[intent];
+				}
+			}
+			return bitmask;
+		} else {
+			return intents as number;
+		}
 	}
 }

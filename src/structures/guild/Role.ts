@@ -1,5 +1,6 @@
 import Client from '../../Client.ts';
 import Base from '../Base.ts';
+import RoleOptions from '../options/RoleOptions.ts';
 import Permission from '../permissions/Permission.ts';
 import Guild from './Guild.ts';
 
@@ -21,5 +22,13 @@ export default class Role extends Base {
 		this.color = data.color;
 		this.hoist = data.hoist;
 		this.mentionable = data.mentionable;
+	}
+
+	public async delete(): Promise<void> {
+		return await this.guild.deleteRole(this.id);
+	}
+
+	public async edit(o: RoleOptions): Promise<Role> {
+		return await this.guild.editRole(this.id, o);
 	}
 }

@@ -1,5 +1,6 @@
 import Client from '../../Client.ts';
 import Guild from '../guild/Guild.ts';
+import ChannelOptions from '../options/ChannelOptions.ts';
 import PermissionOverwite from '../permissions/PermissionOverwrite.ts';
 import Channel from './Channel.ts';
 
@@ -25,5 +26,13 @@ export default class GuildChannel extends Channel {
 					(p: any) => new PermissionOverwite(p)
 			  )
 			: [];
+	}
+
+	public async edit(o: ChannelOptions): Promise<GuildChannel> {
+		return await this.guild.editChannel(this.id, o);
+	}
+
+	public async delete(): Promise<GuildChannel> {
+		return await this.guild.deleteChannel(this.id);
 	}
 }

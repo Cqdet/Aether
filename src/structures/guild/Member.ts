@@ -56,4 +56,23 @@ export default class Member extends Base {
 			return new Permission(permissions);
 		}
 	}
+
+	public async kick(): Promise<void> {
+		return await this.guild.kickMember(this.id);
+	}
+
+	public async ban(o?: {
+		reason?: string;
+		deleteMessageDays?: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
+	}): Promise<void> {
+		return await this.guild.banMember(this.id, o);
+	}
+
+	public async addRole(roleID: string): Promise<void> {
+		return await this.guild.addMemberRole(this.id, roleID);
+	}
+
+	public async removeRole(roleID: string): Promise<void> {
+		return await this.guild.removeMemberRole(this.id, roleID);
+	}
 }
