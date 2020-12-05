@@ -2,6 +2,7 @@ import { EventEmitter, GenericFunction, WrappedFunction } from '../deps.ts';
 import { DefaultIntents, Intents } from './constants/Intents.ts';
 import Shard from './network/gateway/Shard.ts';
 import REST from './network/rest/REST.ts';
+import ORM, { DatabaseOptions, Flavor } from './orm/ORM.ts';
 import Channel from './structures/channels/Channel.ts';
 import Guild from './structures/guild/Guild.ts';
 import User from './structures/User.ts';
@@ -17,6 +18,12 @@ export interface ClientOptions {
 		channels?: CacheOptions;
 		users?: CacheOptions;
 		messages?: CacheOptions;
+	};
+
+	db?: {
+		use: boolean;
+		type: Flavor;
+		opt: DatabaseOptions;
 	};
 	debug?: boolean;
 }
@@ -85,6 +92,8 @@ export default class Client extends EventEmitter {
 	public shard: Shard;
 	public rest: REST;
 
+	public orm?: ORM;
+
 	public guilds: Collection<Guild>;
 	public channels: Collection<Channel>;
 	public users: Collection<User>;
@@ -102,6 +111,10 @@ export default class Client extends EventEmitter {
 		this.secureDataStore = new SecureDataStore();
 		this.shard = new Shard(this);
 		this.rest = new REST(this);
+
+		if (this.options.db?.use) {
+			this.orm = new ORM(this.options.db.type, this.options.db.opt);
+		}
 
 		this.guilds = new Collection(Guild);
 		this.channels = new Collection(Channel);
@@ -129,6 +142,10 @@ export default class Client extends EventEmitter {
 		// this.logger.debug(`Emitted Event: [${ev.toUpperCase()}]`);
 		if (!this.options.allowedEvents?.includes(ev)) return false;
 		return super.emit(ev, ...args);
+	}
+
+	public useORM(type: Flavor, opt: DatabaseOptions): ORM {
+		return (this.orm = new ORM(type, opt));
 	}
 
 	private parseIntents(intents: (keyof typeof Intents)[] | number): number {

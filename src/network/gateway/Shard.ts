@@ -1,7 +1,7 @@
 import { EventEmitter, Buffer } from '../../../deps.ts';
 import { Payload } from '../../constants/Constants.ts';
 import { OPCodes } from '../../constants/OPCodes.ts';
-import Client from '../../Client.ts';
+import Client, { ClientEvents } from '../../Client.ts';
 import Channel from '../../structures/channels/Channel.ts';
 import GuildChannel from '../../structures/channels/GuildChannel.ts';
 import CategoryChannel from '../../structures/channels/CategoryChannel.ts';
@@ -47,16 +47,16 @@ export default class Shard extends EventEmitter {
 
 		this.ws.onclose = (ev: Event) => {
 			const err: DiscordError = <any>ev;
-			this.logger.warning(
-				`Closing WebSocket: ${err.reason} [${err.code}]`
-			);
+			this.logger.error(`Closing WebSocket: ${err.reason} [${err.code}]`);
 			this.state = 'CLOSED';
+			Deno.exit(1);
 		};
 
 		this.ws.onerror = (ev: Event | ErrorEvent) => {
+			const err: DiscordError = <any>ev;
+			this.logger.error(`Closing WebSocket: ${err.reason} [${err.code}]`);
 			this.state = 'CLOSED';
-			this.logger.error(JSON.stringify(ev, null, 4));
-			throw ev;
+			Deno.exit(1);
 		};
 	}
 
@@ -95,18 +95,25 @@ export default class Shard extends EventEmitter {
 						return;
 					} else {
 						this.logger.debug(
-							`Unknown Event: ${
+							`Unimplemented Event: ${
 								ev.charAt(2).toLowerCase() + ev.substring(3)
 							}`
 						);
-						this.client.emit('unknown', payload.d);
+
+						this.client.emit(
+							(ev.charAt(2).toLowerCase() +
+								ev.substring(3)) as ClientEvents,
+							payload.d
+						);
 					}
 				}
 
 				case OPCodes.HEARTBEAT_ACK: {
 					this.lastHeartbeatAck = Date.now();
 					this.ping = this.lastHeartbeatAck - this.lastHeartbeatSent;
-					this.logger.debug(`Current Ping: ${this.ping}ms`);
+					this.logger.debug(
+						`Current Ping: ${this.ping || Infinity}ms`
+					);
 				}
 			}
 		};
@@ -124,8 +131,8 @@ export default class Shard extends EventEmitter {
 				intents: intents,
 				properties: {
 					$os: Deno.build.os,
-					$browser: 'Zaos (Deno)',
-					$device: 'Zaos (Deno)',
+					$browser: 'Aether (Deno)',
+					$device: 'Aether (Deno)',
 				},
 			},
 		});
