@@ -56,3 +56,25 @@ export class MessageHook extends Hook {
 	}
 }
 ```
+
+## Protocol and Registry
+*Note the following is still a prototype concept*
+
+I want to make sure that plugins are easily distributable through the current ecosystem of Deno libraries. Therefore, I have a proposed idea that may work pretty well. Here are the steps on how a concept as such could work.
+
+1. Use the Aether Plugin CLI to fetch a package (remote URL)
+```cmd
+apl get https://deno.land/x/aether-message-logger; # Note we don't specify `mod.ts`
+```
+2. Do a logic check to be sure that there is a plugin.yml file
+Pseudo plugin.yml file
+```yml
+name: MessageLogger
+author: Cqdet
+description: A plugin that lets you log messages into a PSQL DB
+events:
+	- messageCreate
+	- messageUpdate
+```
+3. Use data to "plug in" the plugins correctly in the Aether codebase
+
