@@ -1,4 +1,4 @@
-import { EventEmitter, Buffer } from '../../../deps.ts';
+import { EventEmitter, Buffer, inflate } from '../../../deps.ts';
 import { Payload } from '../../constants/Constants.ts';
 import { OPCodes } from '../../constants/OPCodes.ts';
 import Client, { ClientEvents } from '../../Client.ts';
@@ -61,8 +61,20 @@ export default class Shard extends EventEmitter {
 	}
 
 	public connect(token: string, intents: number = 513) {
-		this.ws.onmessage = (ev: MessageEvent) => {
-			const payload: Payload = JSON.parse(ev.data);
+		this.ws.onmessage = async (ev: MessageEvent) => {
+			let payload: Payload;
+			const rawData: string | Blob = ev.data;
+
+			if (rawData instanceof Blob) {
+				const buf: Buffer =
+					// @ts-ignore (╯°□°)╯︵ ┻━┻
+					rawData[Object.getOwnPropertySymbols(rawData)[0] as symbol];
+
+				payload = JSON.parse(inflate(buf, { to: 'string' }));
+			} else {
+				payload = JSON.parse(rawData);
+			}
+
 			this.seqID = payload.s;
 			this.logger.debug(`Received OP: ${payload.op}`);
 			this.logger.debug(`Sequence ID: ${this.seqID || 'N/A'}`);
@@ -134,6 +146,8 @@ export default class Shard extends EventEmitter {
 					$browser: 'Aether (Deno)',
 					$device: 'Aether (Deno)',
 				},
+				compress: this.client.options.gateway?.compress || false,
+				encoding: this.client.options.gateway?.etf || false,
 			},
 		});
 	}

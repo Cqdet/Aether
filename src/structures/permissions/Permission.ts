@@ -1,7 +1,14 @@
 import Permissions from './Permissions.ts';
 
+/**
+ * @class Permission
+ * Base, extensible, permission object
+ */
+
 export default class Permission {
+	/** Allowed numeric permissions */
 	public allow: number;
+	/** Denied numeric permissions */
 	public deny: number;
 
 	constructor(allow: number, deny: number = 0) {
@@ -11,6 +18,7 @@ export default class Permission {
 
 	/**
 	 * JSON value of the permission
+	 * @returns object
 	 */
 	get json(): object {
 		let obj: any = {};
@@ -30,7 +38,12 @@ export default class Permission {
 		return obj;
 	}
 
-	has(permission: keyof typeof Permissions) {
+	/**
+	 * Method to see whether the permission includes a specific permission
+	 * @param permission Permission string
+	 * @returns boolean
+	 */
+	has(permission: keyof typeof Permissions): boolean {
 		return Object.keys(this.json).includes(permission);
 	}
 }

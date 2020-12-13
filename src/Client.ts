@@ -3,6 +3,7 @@ import { DefaultIntents, Intents } from './constants/Intents.ts';
 import Shard from './network/gateway/Shard.ts';
 import REST from './network/rest/REST.ts';
 import ORM, { DatabaseOptions, Flavor } from './orm/ORM.ts';
+import PluginRegistry from './plugin/PluginRegistry.ts';
 import Channel from './structures/channels/Channel.ts';
 import Guild from './structures/guild/Guild.ts';
 import User from './structures/User.ts';
@@ -25,7 +26,13 @@ export interface ClientOptions {
 		type: Flavor;
 		opt: DatabaseOptions;
 	};
+	gateway?: {
+		compress?: boolean;
+		etf?: boolean;
+	};
+
 	debug?: boolean;
+	usePlugins?: boolean;
 }
 
 export interface CacheOptions {
@@ -93,12 +100,14 @@ export default class Client extends EventEmitter {
 	public rest: REST;
 
 	public orm?: ORM;
+	public plugins?: PluginRegistry;
 
 	public guilds: Collection<Guild>;
 	public channels: Collection<Channel>;
 	public users: Collection<User>;
 
-	private options: ClientOptions;
+	public options: ClientOptions;
+
 	private logger: Logger;
 
 	public constructor(token: string, options: ClientOptions) {
@@ -114,6 +123,10 @@ export default class Client extends EventEmitter {
 
 		if (this.options.db?.use) {
 			this.orm = new ORM(this.options.db.type, this.options.db.opt);
+		}
+
+		if (this.options.usePlugins) {
+			this.plugins = new PluginRegistry();
 		}
 
 		this.guilds = new Collection(Guild);
@@ -146,6 +159,10 @@ export default class Client extends EventEmitter {
 
 	public useORM(type: Flavor, opt: DatabaseOptions): ORM {
 		return (this.orm = new ORM(type, opt));
+	}
+
+	public usePlugins(): PluginRegistry {
+		return (this.plugins = new PluginRegistry());
 	}
 
 	private parseIntents(intents: (keyof typeof Intents)[] | number): number {

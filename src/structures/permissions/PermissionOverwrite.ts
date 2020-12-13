@@ -1,5 +1,11 @@
 import Permission from './Permission.ts';
 
+/**
+ * @class PermissionOverwrite
+ * @extends Permission
+ * A guild permission overwrite (member or role)
+ */
+
 export default class PermissionOverwite extends Permission {
 	public id: string;
 	public type: 'member' | 'role';

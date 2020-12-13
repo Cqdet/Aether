@@ -6,16 +6,32 @@ import Permission from '../permissions/Permission.ts';
 import Permissions from '../permissions/Permissions.ts';
 import Client from '../../Client.ts';
 
+/**
+ * @class Member
+ * @extends Base
+ * A guild member object
+ */
+
 export default class Member extends Base {
+	/** User of the member */
 	public user: User;
+	/** If the 'me' is an owner */
 	public owner: boolean;
+	/** Array of role IDs the member has */
 	public roles: string[];
-	public premiumSince: number;
+	/** Timestamp of how long the member has had Nitro */
+	public premiumSince: string;
+	/** Guild of the member */
 	public guild: Guild;
+	/** Nick of the member */
 	public nick: string;
+	/** Whether the member is muted */
 	public mute: boolean;
+	/** Timestamp of when the member joined the guild */
 	public joinedAt: number | Date;
+	/** Hoisted role of the member */
 	public hoistedRole: any;
+	/** Whether the member is deafened */
 	public deaf: boolean;
 
 	public constructor(data: any, guild: Guild, client: Client) {
@@ -32,7 +48,11 @@ export default class Member extends Base {
 		this.deaf = data.deaf;
 	}
 
-	get permissions() {
+	/**
+	 * Getter to get the permissions of the member
+	 * @returns Permission
+	 */
+	get permissions(): Permission {
 		if (this.id === this.guild.ownerID) {
 			return new Permission(Permissions.all);
 		} else {
@@ -57,10 +77,19 @@ export default class Member extends Base {
 		}
 	}
 
+	/**
+	 * Method to kick the user from the guild
+	 * @returns Promise<void>
+	 */
 	public async kick(): Promise<void> {
 		return await this.guild.kickMember(this.id);
 	}
 
+	/**
+	 * Method to ban the user from the guild
+	 * @param o Ban options
+	 * @returns Promise<void>
+	 */
 	public async ban(o?: {
 		reason?: string;
 		deleteMessageDays?: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
@@ -68,10 +97,20 @@ export default class Member extends Base {
 		return await this.guild.banMember(this.id, o);
 	}
 
+	/**
+	 * Method to add a role to the user
+	 * @param roleID ID of the role
+	 * @returns Promise<void>
+	 */
 	public async addRole(roleID: string): Promise<void> {
 		return await this.guild.addMemberRole(this.id, roleID);
 	}
 
+	/**
+	 * Method to remove a role from the user
+	 * @param roleID ID of the role
+	 * @returns Promise<void>
+	 */
 	public async removeRole(roleID: string): Promise<void> {
 		return await this.guild.removeMemberRole(this.id, roleID);
 	}

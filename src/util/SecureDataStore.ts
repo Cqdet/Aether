@@ -1,4 +1,6 @@
 /**
+ * @class SecureDataStore
+ * @extends Map
  * A data structure that can safely house environment variables
  */
 export default class SecureDataStore extends Map {

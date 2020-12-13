@@ -1,5 +1,10 @@
 import * as color from 'https://deno.land/std/fmt/colors.ts';
 
+/**
+ * @class Logger
+ * A simple logger
+ */
+
 export default class Logger {
 	public static DEBUG: boolean = false;
 	public name: string;

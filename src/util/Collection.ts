@@ -1,6 +1,8 @@
 /**
+ * @class Collection
+ * @extends Map
+ * @see https://github.com/abalabahaha/eris/blob/master/lib/util/Collection.js
  * A simple data class to hold class-based data
- * @from https://github.com/abalabahaha/eris/blob/master/lib/util/Collection.js
  */
 export default class Collection<V> extends Map<string, V> {
 	private base: Function;

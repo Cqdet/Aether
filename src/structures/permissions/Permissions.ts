@@ -1,3 +1,7 @@
+/**
+ * @constant Permissions
+ * Permission constant
+ */
 const Permissions = {
 	createInstantInvite: 1,
 	kickMembers: 1 << 1,
